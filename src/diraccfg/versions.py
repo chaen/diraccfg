@@ -7,6 +7,11 @@ import re
 
 def parseVersion(versionString):
   """Parse a DIRAC-style version sting
+
+  :param versionString: Version identifier to parse
+  :returns: `tuple` of 4 values (major, minor, patch, pre). All values will be
+            `int` except "pre" which is `None` for released versions.
+  :raises: ValueError if the versionString is invalid
   """
   match = re.match(
       r"^v(?P<major>\d+)r(?P<minor>\d+)(?:p(?P<patch>\d+))?(?:-pre(?P<pre>\d+))?$",
