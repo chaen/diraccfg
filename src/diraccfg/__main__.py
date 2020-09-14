@@ -5,9 +5,9 @@ import argparse
 import json
 import os
 import sys
-import re
 
 from .cfg import CFG
+from .versions import parseVersion
 
 
 def parseArgs():
@@ -48,17 +48,17 @@ def sortVersions(allow_pre_releases=False):
 
   parsedVersions = {}
   for obj in objs:
-    match = re.match(r"^v(?P<major>\d+)r(?P<minor>\d+)(?:p(?P<patch>\d+))?(?:-pre(?P<pre>\d+))?$", obj)
-    if match:
-      v = match.groupdict()
-      if not allow_pre_releases and v['pre']:
+    try:
+        major, minor, patch, pre = parseVersion(obj)
+    except ValueError:
+      if obj not in ('integration', 'devel', 'master'):
+        sys.stderr.write('WARN: Unexpected version string %r\n' % obj)
+    else:
+      if pre is None:
+        pre = sys.maxsize
+      elif not allow_pre_releases:
         continue
-      if v['pre'] is None:
-        v['pre'] = sys.maxsize
-      v = {k: 0 if v is None else int(v) for k, v in v.items()}
-      parsedVersions[obj] = (v['major'], v['minor'], v['patch'], v['pre'])
-    elif obj not in ('integration', 'devel', 'master'):
-      sys.stderr.write('WARN: Unexpected version string %r\n' % obj)
+      parsedVersions[obj] = (major, minor, patch, pre)
 
   print(json.dumps(sorted(parsedVersions, key=parsedVersions.get, reverse=True)))
 
