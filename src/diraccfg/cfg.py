@@ -44,13 +44,19 @@ class Synchronizer(object):
   decorator making the call thread-safe"""
 
   def __init__(self, lockName="", recursive=False):
-    self.lockName = lockName
-    if recursive:
-      self.lock = threading.RLock()
-    else:
-      self.lock = threading.Lock()
+    envVar = os.environ.get("DIRAC_FEWER_CFG_LOCKS", "no").lower()
+    self.__locksEnabled = envVar not in ("y", "yes", "t", "true", "on", "1")
+    if self.__locksEnabled:
+      self.lockName = lockName
+      if recursive:
+        self.lock = threading.RLock()
+      else:
+        self.lock = threading.Lock()
 
   def __call__(self, funcToCall):
+    if not self.__locksEnabled:
+      return funcToCall
+
     def lockedFunc(*args, **kwargs):
       try:
         if self.lockName:
