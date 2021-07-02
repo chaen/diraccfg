@@ -18,10 +18,10 @@ def test_comment():
 
 
 def test_sanity():
-  with pytest.raises(SyntaxError) as excinfo:
+  with pytest.raises(ValueError) as excinfo:
     rels = CFG().loadFromFile(BROKEN_OPEN_CFG_FILE)
   assert 'close more section' in str(excinfo)
 
-  with pytest.raises(SyntaxError) as excinfo:
+  with pytest.raises(ValueError) as excinfo:
     rels = CFG().loadFromFile(BROKEN_CLOSE_CFG_FILE)
   assert 'open more section' in str(excinfo)

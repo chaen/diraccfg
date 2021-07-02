@@ -950,7 +950,7 @@ class CFG(object):
           try:
             currentLevel = levelList.pop()
           except IndexError:
-            raise SyntaxError("The cfg file seems to close more section than it opens (i.e. to many '}' vs '{'")
+            raise ValueError("The cfg file seems to close more sections than it opens (i.e. to many '}' vs '{'")
         elif line[index] == "=":
           lFields = line.split("=")
           currentLevel.setOption(lFields[0].strip(), "=".join(lFields[1:]).strip(), currentComment)
@@ -967,7 +967,7 @@ class CFG(object):
           currentlyParsedString += line[index]
     # At this point, the levelList should be empty
     if levelList:
-      raise SyntaxError("The cfg file seems to open more section than it closes (i.e. to many '{' vs '}'")
+      raise ValueError("The cfg file seems to open more sections than it closes (i.e. to many '{' vs '}'")
     return self
 
   @gCFGSynchro
