@@ -922,6 +922,8 @@ class CFG(object):
     :type data: string
     :param data: Contents of the CFG
     :return: This CFG
+
+    :raise SyntaxError: in case the number of opening and closing brackets do not match
     """
     commentRE = re.compile(r"^\s*#")
     self.reset()
@@ -945,7 +947,10 @@ class CFG(object):
           currentlyParsedString = ""
           currentComment = ""
         elif line[index] == "}":
-          currentLevel = levelList.pop()
+          try:
+            currentLevel = levelList.pop()
+          except IndexError:
+            raise SyntaxError("The cfg file seems to close more section than it opens (i.e. to many '}' vs '{'")
         elif line[index] == "=":
           lFields = line.split("=")
           currentLevel.setOption(lFields[0].strip(), "=".join(lFields[1:]).strip(), currentComment)
@@ -960,6 +965,9 @@ class CFG(object):
           break
         else:
           currentlyParsedString += line[index]
+    # At this point, the levelList should be empty
+    if levelList:
+      raise SyntaxError("The cfg file seems to open more section than it closes (i.e. to many '{' vs '}'")
     return self
 
   @gCFGSynchro
