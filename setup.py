@@ -1,7 +1,7 @@
 import os
 import setuptools
 
-with open(os.path.join(os.path.dirname(__file__), "README.md"), "rt") as fh:
+with open(os.path.join(os.path.dirname(__file__), "README.md")) as fh:
     long_description = fh.read()
 
 test_requires = [
@@ -26,10 +26,10 @@ setuptools.setup(
     setup_requires=["setuptools_scm"],
     install_requires=[],
     extras_require={
-        'testing': test_requires,
+        "testing": test_requires,
     },
     entry_points={
-        'console_scripts': ['diraccfg=diraccfg.__main__:parseArgs'],
+        "console_scripts": ["diraccfg=diraccfg.__main__:parseArgs"],
     },
     classifiers=[
         "Programming Language :: Python :: 2",
