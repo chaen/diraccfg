@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import re
 
 
-def parseVersion(versionString):
+def parseVersion(versionString: str) -> tuple[int, int, int, int | None]:
     """Parse a DIRAC-style version sting
 
     :param versionString: Version identifier to parse
@@ -16,11 +18,9 @@ def parseVersion(versionString):
     if not match:
         raise ValueError(f"{versionString} is not a valid version")
 
-    segments = match.groupdict()
-    for k, v in segments.items():
-        if k != "pre" and v is None:
-            segments[k] = 0
-        if v is not None:
-            segments[k] = int(v)
-
-    return (segments["major"], segments["minor"], segments["patch"], segments["pre"])
+    return (
+        int(match.group("major")),
+        int(match.group("minor")),
+        int(match.group("patch") or 0),
+        None if match.group("pre") is None else int(match.group("pre")),
+    )
