@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import pytest
 
 import diraccfg
@@ -19,7 +15,6 @@ import diraccfg
         ("v7r2-pre10", (7, 2, 0, 10)),
         ("v7r2-pre9", (7, 2, 0, 9)),
         ("v7r2p8-pre9", (7, 2, 8, 9)),
-
         ("v10r0p30", (10, 0, 30, None)),
         ("v10r1", (10, 1, 0, None)),
         ("v10r1-pre1", (10, 1, 0, 1)),
@@ -29,7 +24,6 @@ import diraccfg
         ("v10r2-pre10", (10, 2, 0, 10)),
         ("v10r2-pre9", (10, 2, 0, 9)),
         ("v10r2p8-pre9", (10, 2, 8, 9)),
-
         ("v100r0p30", (100, 0, 30, None)),
         ("v100r1", (100, 1, 0, None)),
         ("v100r1-pre1", (100, 1, 0, 1)),
@@ -42,7 +36,7 @@ import diraccfg
     ],
 )
 def test_parseValid(string, expected):
-  assert expected == diraccfg.parseVersion(string)
+    assert expected == diraccfg.parseVersion(string)
 
 
 @pytest.mark.parametrize(
@@ -64,5 +58,5 @@ def test_parseValid(string, expected):
     ],
 )
 def test_parseInvalid(string):
-  with pytest.raises(ValueError):
-    diraccfg.parseVersion(string)
+    with pytest.raises(ValueError):
+        diraccfg.parseVersion(string)

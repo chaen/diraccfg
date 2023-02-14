@@ -1,14 +1,13 @@
 import os
 import setuptools
 
-with open(os.path.join(os.path.dirname(__file__), "README.md"), "rt") as fh:
+with open(os.path.join(os.path.dirname(__file__), "README.md")) as fh:
     long_description = fh.read()
 
 test_requires = [
     "pytest>=4.6",
     "pytest-cov",
     "pylint>=1.6.5",
-    "pycodestyle",
 ]
 
 setuptools.setup(
@@ -26,21 +25,17 @@ setuptools.setup(
     setup_requires=["setuptools_scm"],
     install_requires=[],
     extras_require={
-        'testing': test_requires,
+        "testing": test_requires,
     },
     entry_points={
-        'console_scripts': ['diraccfg=diraccfg.__main__:parseArgs'],
+        "console_scripts": ["diraccfg=diraccfg.__main__:parseArgs"],
     },
     classifiers=[
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*",
+    python_requires=">=3.9",
 )
