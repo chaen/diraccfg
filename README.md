@@ -6,10 +6,6 @@
 
 `diraccfg` provides a parser for the configuration files used by
 [DIRAC](https://github.com/DIRACGrid) and its associated projects.
-It is designed to be usable as either a full Python package or as a standalone
-file, which can be found in `src/diraccfg/cfg.py`.
-The standalone mode allows for this to be used by `dirac-install` and the pilot
-scripts without requiring of `pip`.
 
 
 ## Installation
