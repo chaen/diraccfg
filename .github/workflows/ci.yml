@@ -38,21 +38,10 @@ jobs:
         . "${CONDA}/bin/activate" test-env
         pylint -E src/diraccfg/ tests/
 
-  pycodestyle:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Prepare environment
-      run: .github/workflows/prepare_environment.sh 3
-    - name: Run pycodestyle
-      run: |
-        . "${CONDA}/bin/activate" test-env
-        pycodestyle src/diraccfg/ tests/
-
   publish-pypi:
     runs-on: ubuntu-latest
     name: Publish package to PyPI
-    needs: [pytest, pycodestyle]
+    needs: [pytest, pre-commit]
     steps:
       - uses: actions/checkout@v2
       - run: |

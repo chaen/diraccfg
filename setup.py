@@ -8,7 +8,6 @@ test_requires = [
     "pytest>=4.6",
     "pytest-cov",
     "pylint>=1.6.5",
-    "pycodestyle",
 ]
 
 setuptools.setup(
