@@ -503,7 +503,10 @@ class CFG:
         end = result["levelsBelow"]
         if end not in cfg.__dataDict:
             raise KeyError(f"Option {end} has not been declared")
-        cfg.__dataDict[end] += str(value)
+        current_value = cfg.__dataDict[end]
+        if not isinstance(current_value, str):
+            raise ValueError(f"Option {end} is not a string")
+        cfg.__dataDict[end] = current_value + str(value)
 
     @gCFGSynchro
     def addKey(self, key, value, comment, beforeKey=""):
