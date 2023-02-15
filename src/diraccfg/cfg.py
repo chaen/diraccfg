@@ -350,10 +350,10 @@ class CFG:
                     "value": self.__dataDict[pathList[0]],
                     "comment": self.__commentDict[pathList[0]],
                 }
-            else:
-                return self.__dataDict[pathList[0]].__recurse(pathList[1:])
-        else:
-            return False
+            value = self.__dataDict[pathList[0]]
+            if isinstance(value, CFG):
+                return value.__recurse(pathList[1:])
+        return False
 
     @gCFGSynchro
     def getRecursive(self, path, levelsAbove=0):
