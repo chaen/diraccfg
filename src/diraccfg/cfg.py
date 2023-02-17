@@ -350,10 +350,10 @@ class CFG:
                     "value": self.__dataDict[pathList[0]],
                     "comment": self.__commentDict[pathList[0]],
                 }
-            else:
-                return self.__dataDict[pathList[0]].__recurse(pathList[1:])
-        else:
-            return False
+            value = self.__dataDict[pathList[0]]
+            if isinstance(value, CFG):
+                return value.__recurse(pathList[1:])
+        return False
 
     @gCFGSynchro
     def getRecursive(self, path, levelsAbove=0):
@@ -503,7 +503,10 @@ class CFG:
         end = result["levelsBelow"]
         if end not in cfg.__dataDict:
             raise KeyError(f"Option {end} has not been declared")
-        cfg.__dataDict[end] += str(value)
+        current_value = cfg.__dataDict[end]
+        if not isinstance(current_value, str):
+            raise ValueError(f"Option {end} is not a string")
+        cfg.__dataDict[end] = current_value + str(value)
 
     @gCFGSynchro
     def addKey(self, key, value, comment, beforeKey=""):
@@ -597,7 +600,9 @@ class CFG:
         """
         Check if a key is defined
         """
-        return self.getRecursive(key)
+        if not isinstance(key, string_types) or not key:
+            return False
+        return bool(self.getRecursive(key))
 
     def __str__(self):
         """
@@ -615,7 +620,7 @@ class CFG:
         """
         return self.serialize()
 
-    def __nonzero__(self):
+    def __bool__(self):
         """
         CFGs are not zeroes! ;)
         """
@@ -887,7 +892,7 @@ class CFG:
             zipHandler = zipfile.ZipFile(fileName)
             nameList = zipHandler.namelist()
             fileToRead = nameList[0]
-            fileData = zipHandler.read(fileToRead)
+            fileData = zipHandler.read(fileToRead).decode("utf-8")
             zipHandler.close()
         else:
             with open(fileName) as fd:
