@@ -600,7 +600,9 @@ class CFG:
         """
         Check if a key is defined
         """
-        return self.getRecursive(key)
+        if not isinstance(key, string_types) or not key:
+            return False
+        return bool(self.getRecursive(key))
 
     def __str__(self):
         """
