@@ -892,7 +892,7 @@ class CFG:
             zipHandler = zipfile.ZipFile(fileName)
             nameList = zipHandler.namelist()
             fileToRead = nameList[0]
-            fileData = zipHandler.read(fileToRead)
+            fileData = zipHandler.read(fileToRead).decode("utf-8")
             zipHandler.close()
         else:
             with open(fileName) as fd:
