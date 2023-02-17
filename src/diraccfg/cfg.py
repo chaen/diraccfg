@@ -620,7 +620,7 @@ class CFG:
         """
         return self.serialize()
 
-    def __nonzero__(self):
+    def __bool__(self):
         """
         CFGs are not zeroes! ;)
         """
