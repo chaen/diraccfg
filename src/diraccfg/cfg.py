@@ -8,13 +8,6 @@ import zipfile
 import threading
 
 
-# Avoid using six as this file should be usable without any dependencies
-try:
-    string_types = (basestring,)
-except NameError:
-    string_types = (str,)
-
-
 def S_ERROR(messageString=""):
     return {"OK": False, "Message": str(messageString)}
 
@@ -26,7 +19,7 @@ def S_OK(value=""):
 class ListDummy:
     def fromChar(self, inputString, sepChar=","):
         if not (
-            isinstance(inputString, string_types) and isinstance(sepChar, string_types) and sepChar
+            isinstance(inputString, str) and isinstance(sepChar, str) and sepChar
         ):  # to prevent getting an empty String as argument
             return None
 
@@ -110,7 +103,7 @@ class CFG:
             if not recDict:
                 return S_ERROR(f"Parent section does not exist {sectionName}")
             parentSection = recDict["value"]
-            if isinstance(parentSection, string_types):
+            if isinstance(parentSection, str):
                 raise KeyError(f"Entry {recDict['key']} doesn't seem to be a section")
             return parentSection.createNewSection(recDict["levelsBelow"], comment, contents)
         self.__addEntry(sectionName, comment)
@@ -155,7 +148,7 @@ class CFG:
             if not recDict:
                 return S_ERROR(f"Parent section does not exist {optionName}")
             parentSection = recDict["value"]
-            if isinstance(parentSection, string_types):
+            if isinstance(parentSection, str):
                 raise KeyError(f"Entry {recDict['key']} doesn't seem to be a section")
             return parentSection.setOption(recDict["levelsBelow"], value, comment)
         self.__addEntry(optionName, comment)
@@ -269,9 +262,9 @@ class CFG:
         :return: List with the option names
         """
         if ordered:
-            return [sKey for sKey in self.__orderedList if isinstance(self.__dataDict[sKey], string_types)]
+            return [sKey for sKey in self.__orderedList if isinstance(self.__dataDict[sKey], str)]
         else:
-            return [sKey for sKey in self.__dataDict.keys() if isinstance(self.__dataDict[sKey], string_types)]
+            return [sKey for sKey in self.__dataDict.keys() if isinstance(self.__dataDict[sKey], str)]
 
     @gCFGSynchro
     def listSections(self, ordered=True):
@@ -283,9 +276,9 @@ class CFG:
         :return: List with the subsection names
         """
         if ordered:
-            return [sKey for sKey in self.__orderedList if not isinstance(self.__dataDict[sKey], string_types)]
+            return [sKey for sKey in self.__orderedList if not isinstance(self.__dataDict[sKey], str)]
         else:
-            return [sKey for sKey in self.__dataDict.keys() if not isinstance(self.__dataDict[sKey], string_types)]
+            return [sKey for sKey in self.__dataDict.keys() if not isinstance(self.__dataDict[sKey], str)]
 
     @gCFGSynchro
     def isSection(self, key):
@@ -301,11 +294,11 @@ class CFG:
             if not keyDict:
                 return False
             section = keyDict["value"]
-            if isinstance(section, string_types):
+            if isinstance(section, str):
                 return False
             secKey = keyDict["levelsBelow"]
             return section.isSection(secKey)
-        return key in self.__dataDict and not isinstance(self.__dataDict[key], string_types)
+        return key in self.__dataDict and not isinstance(self.__dataDict[key], str)
 
     @gCFGSynchro
     def isOption(self, key):
@@ -321,11 +314,11 @@ class CFG:
             if not keyDict:
                 return False
             section = keyDict["value"]
-            if isinstance(section, string_types):
+            if isinstance(section, str):
                 return False
             secKey = keyDict["levelsBelow"]
             return section.isOption(secKey)
-        return key in self.__dataDict and isinstance(self.__dataDict[key], string_types)
+        return key in self.__dataDict and isinstance(self.__dataDict[key], str)
 
     def listAll(self):
         """
@@ -411,7 +404,7 @@ class CFG:
                 return defaultValue
             dataD = dataV
 
-        if not isinstance(dataV, string_types):
+        if not isinstance(dataV, str):
             optionValue = defaultValue
         else:
             optionValue = dataV
@@ -477,7 +470,7 @@ class CFG:
             if not reqDict:
                 return resVal
             keyCfg = reqDict["value"]
-            if isinstance(keyCfg, string_types):
+            if isinstance(keyCfg, str):
                 return resVal
             return keyCfg.getAsDict()
         for op in self.listOptions():
@@ -600,7 +593,7 @@ class CFG:
         """
         Check if a key is defined
         """
-        if not isinstance(key, string_types) or not key:
+        if not isinstance(key, str) or not key:
             return False
         return bool(self.getRecursive(key))
 
@@ -650,8 +643,8 @@ class CFG:
         """
         try:
             return self.__commentDict[entryName]
-        except BaseException:
-            raise ValueError(f"{entryName} does not have any comment defined")
+        except KeyError:
+            raise ValueError(f"{entryName} does not have any comment defined") from None
 
     @gCFGSynchro
     def setComment(self, entryName, comment):
@@ -937,7 +930,7 @@ class CFG:
                     except IndexError:
                         raise ValueError(
                             "The cfg file seems to close more sections than it opens (i.e. to many '}' vs '{'"
-                        )
+                        ) from None
                 elif line[index] == "=":
                     lFields = line.split("=")
                     currentLevel.setOption(lFields[0].strip(), "=".join(lFields[1:]).strip(), currentComment)

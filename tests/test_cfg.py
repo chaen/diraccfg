@@ -92,16 +92,16 @@ def test_load():
 
 def test_comment():
     c = CFG().loadFromFile(EXAMPLE_CFG_FILE)
-    c.getComment("Releases").strip() == "Here is where the releases go:"
+    assert c.getComment("Releases").strip() == "Here is where the releases go:"
 
 
 def test_sanity():
     with pytest.raises(ValueError) as excinfo:
-        rels = CFG().loadFromFile(BROKEN_OPEN_CFG_FILE)
+        CFG().loadFromFile(BROKEN_OPEN_CFG_FILE)
     assert "close more section" in str(excinfo)
 
     with pytest.raises(ValueError) as excinfo:
-        rels = CFG().loadFromFile(BROKEN_CLOSE_CFG_FILE)
+        CFG().loadFromFile(BROKEN_CLOSE_CFG_FILE)
     assert "open more section" in str(excinfo)
 
 
