@@ -643,8 +643,8 @@ class CFG:
         """
         try:
             return self.__commentDict[entryName]
-        except KeyError as e:
-            raise ValueError(f"{entryName} does not have any comment defined") from e
+        except KeyError:
+            raise ValueError(f"{entryName} does not have any comment defined") from None
 
     @gCFGSynchro
     def setComment(self, entryName, comment):
@@ -927,10 +927,10 @@ class CFG:
                 elif line[index] == "}":
                     try:
                         currentLevel = levelList.pop()
-                    except IndexError as e:
+                    except IndexError:
                         raise ValueError(
                             "The cfg file seems to close more sections than it opens (i.e. to many '}' vs '{'"
-                        ) from e
+                        ) from None
                 elif line[index] == "=":
                     lFields = line.split("=")
                     currentLevel.setOption(lFields[0].strip(), "=".join(lFields[1:]).strip(), currentComment)
