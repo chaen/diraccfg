@@ -9,3 +9,10 @@ build-backend = "setuptools.build_meta"
 [tool.black]
 line-length = 120
 target-version = ['py39']
+
+[tool.mypy]
+strict = true
+files = 'src/diraccfg'
+
+[tool.pylint."messages control"]
+disable = ["unsubscriptable-object"]

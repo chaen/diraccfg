@@ -1,13 +1,16 @@
+from __future__ import annotations
+
 import argparse
 import json
 import os
 import sys
+from typing import NoReturn
 
 from .cfg import CFG
 from .versions import parseVersion
 
 
-def parseArgs():
+def parseArgs() -> NoReturn:
     parser = argparse.ArgumentParser(description="Parser for DIRAC cfg files")
     subparsers = parser.add_subparsers(help="Actions to run with the ")
 
@@ -27,7 +30,7 @@ def parseArgs():
     sys.exit(0)
 
 
-def dumpAsJson(cfgFilename):
+def dumpAsJson(cfgFilename: str) -> None:
     if not os.path.isfile(cfgFilename):
         sys.stderr.write(f"ERROR: {cfgFilename} does not exist\n")
         sys.exit(1)
@@ -35,7 +38,7 @@ def dumpAsJson(cfgFilename):
     print(json.dumps(res.getAsDict()))
 
 
-def sortVersions(allow_pre_releases=False):
+def sortVersions(allow_pre_releases: bool = False) -> None:
     try:
         objs = json.loads(sys.stdin.read())
     except getattr(json, "JSONDecodeError", ValueError):
@@ -56,7 +59,7 @@ def sortVersions(allow_pre_releases=False):
                 continue
             parsedVersions[obj] = (major, minor, patch, pre)
 
-    print(json.dumps(sorted(parsedVersions, key=parsedVersions.get, reverse=True)))
+    print(json.dumps(sorted(parsedVersions, key=parsedVersions.__getitem__, reverse=True)))
 
 
 if __name__ == "__main__":

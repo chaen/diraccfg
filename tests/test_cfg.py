@@ -338,7 +338,7 @@ def test_comments():
 
     assert a.getComment("a") == ""
     assert a.setComment("a", "some comment") is True
-    a.getComment("a") == "some comment"
+    assert a.getComment("a") == "some comment"
 
     assert "missing" not in a
     assert a.setComment("missing", "some comment") is False
@@ -352,7 +352,7 @@ def test_comments_nested():
     a = CFG().loadFromDict({"a": "1", "b": "2", "c": {"d": "3", "e": "4"}})
     assert a.getComment("/c/d") == ""
     assert a.setComment("/c/d", "some other comment") is True
-    a.getComment("/c/d") == "some other comment"
+    assert a.getComment("/c/d") == "some other comment"
 
 
 def test_getitem():
@@ -392,7 +392,7 @@ def test_setOption():
     assert a.getOption("/c/x") == "hello world"
 
     assert a.getOption("/missing/z") is None
-    assert a.setOption("/missing/z", "invalid")["OK"] == False
+    assert a.setOption("/missing/z", "invalid")["OK"] is False
     assert a.getOption("/missing/z") is None
 
     with pytest.raises(KeyError, match=r"doesn't seem to be a section"):
@@ -708,9 +708,9 @@ def test_createNewSection():
     with pytest.raises(KeyError, match="Entry a doesn't seem to"):
         a.createNewSection("/a/new9")
 
-    assert a.createNewSection("/new2/new9/new10")["OK"] == False
-    assert a.createNewSection("new3/new4")["OK"] == False
-    assert a.createNewSection("/new3/new4")["OK"] == False
+    assert a.createNewSection("/new2/new9/new10")["OK"] is False
+    assert a.createNewSection("new3/new4")["OK"] is False
+    assert a.createNewSection("/new3/new4")["OK"] is False
 
 
 def test_writeToFile(tmp_path):

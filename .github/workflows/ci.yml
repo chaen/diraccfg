@@ -33,6 +33,10 @@ jobs:
       run: |
         . "${CONDA}/bin/activate" test-env
         pytest
+    - name: Run mypy
+      run: |
+        . "${CONDA}/bin/activate" test-env
+        mypy
     - name: Run pylint
       run: |
         . "${CONDA}/bin/activate" test-env
