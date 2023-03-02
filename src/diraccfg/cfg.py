@@ -104,6 +104,7 @@ class Synchronizer:
             return funcToCall
 
         def lockedFunc(*args: P.args, **kwargs: P.kwargs) -> T:
+
             try:
                 if self.lockName:
                     print("LOCKING", self.lockName)
@@ -204,7 +205,6 @@ class CFG:
         else:
             raise KeyError(f"{sectionName} key already exists")
         return contents
-
 
     @gCFGSynchro
     def setOption(self, optionName: str, value: str, comment: str = "") -> DErrorReturnType | None:
@@ -803,11 +803,11 @@ class CFG:
                 raise ValueError("Oops. There is an entry in the order which is not a section nor an option")
         return cfgString
 
+
     @gCFGSynchro
-    def clone(self) -> CFG:
+    def clone_old(self) -> CFG:
         """
         Create a copy of the CFG
-
         :return: CFG copy
         """
         clonedCFG = CFG()
@@ -819,6 +819,31 @@ class CFG:
             clonedCFG.__dataDict[option] = value
         for section in self.listSections():
             clonedCFG.__dataDict[section] = cast(CFG, self[section]).clone()
+        return clonedCFG
+
+    @gCFGSynchro
+    def clone_fast(self) -> CFG:
+        """
+        Create a copy of the CFG
+
+        :return: CFG copy
+        """
+        breakpoint()
+        clonedCFG = CFG()
+        clonedCFG.__orderedList = copy.deepcopy(self.__orderedList)
+        clonedCFG.__commentDict = copy.deepcopy(self.__commentDict)
+        # for option in self.listOptions():
+        #     value = self[option]
+        #     assert value is not False
+        #     clonedCFG.__dataDict[option] = value
+        for sKey, sValue in self.__orderedList.items():
+            if isinstance(sValue, str):
+                clonedCFG.__dataDict[sKey] = sValue
+            else:
+
+                clonedCFG.__dataDict[sKey] = cast(CFG, self[section]).clone()
+
+
         return clonedCFG
 
     @gCFGSynchro
@@ -1019,8 +1044,6 @@ class CFG:
                 fileData = fd.read()
         return self.loadFromBuffer(fileData)
 
-
-
     @gCFGSynchro
     def loadFromBuffer_fast(self, data: str) -> CFG:
         """
@@ -1043,7 +1066,7 @@ class CFG:
             if not line:
                 continue
 
-            if "#" in line and commentRE.match(line):
+            if line[0] == "#":
                 currentCommentLines.append(f"{line.replace('#', '')}")
                 continue
             if "+=" in line:
@@ -1056,7 +1079,7 @@ class CFG:
                 currentCommentLines = []
                 continue
             elif "{" in line:
-                sectionName, shouldNotBeHere = line.split("{",maxsplit=1)
+                sectionName, shouldNotBeHere = line.split("{", maxsplit=1)
                 if shouldNotBeHere:
                     raise ValueError("There's something after {")
                 if not sectionName:
@@ -1076,7 +1099,7 @@ class CFG:
                     ) from None
 
             else:
-                previousLine  = line
+                previousLine = line
         if levelList:
             raise ValueError(f"The cfg file seems to open more sections than it closes (Line {lineNb})")
         return self
@@ -1137,7 +1160,6 @@ class CFG:
             raise ValueError("The cfg file seems to open more sections than it closes (i.e. to many '{' vs '}'")
         return self
 
-
     @gCFGSynchro
     def loadFromDict(self, data: CFGAsDict) -> CFG:
         for k in data:
@@ -1171,6 +1193,8 @@ class CFG:
     if os.environ.get("DIRAC_FAST_CS"):
         loadFromBuffer = loadFromBuffer_fast
         createNewSection = createNewSection_fast
+        clone = clone_fast
     else:
         loadFromBuffer = loadFromBuffer_old
         createNewSection = createNewSection_old
+        clone = clone_old
