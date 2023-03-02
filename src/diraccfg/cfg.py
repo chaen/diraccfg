@@ -140,7 +140,7 @@ class CFG:
         self.__dataDict = {}
 
     @gCFGSynchro
-    def createNewSection(
+    def createNewSection_fast(
         self, sectionName: str, comment: str = "", contents: CFG | None = None
     ) -> DErrorReturnType | CFG:
         """
@@ -171,6 +171,40 @@ class CFG:
         else:
             raise KeyError(f"{sectionName} key already exists")
         return contents
+
+    @gCFGSynchro
+    def createNewSection_old(
+        self, sectionName: str, comment: str = "", contents: CFG | None = None
+    ) -> DErrorReturnType | CFG:
+        """
+        Create a new section
+
+        :type sectionName: string
+        :param sectionName: Name of the section
+        :type comment: string
+        :param comment: Comment for the section
+        :type contents: CFG
+        :param contents: Optional cfg with the contents of the section.
+        """
+        if sectionName == "":
+            raise ValueError("Creating a section with empty name! You shouldn't do that!")
+        if sectionName.find("/") > -1:
+            recDict = self.getRecursive(sectionName, -1)
+            if not recDict:
+                return S_ERROR(f"Parent section does not exist {sectionName}")
+            parentSection = recDict["value"]
+            if isinstance(parentSection, str):
+                raise KeyError(f"Entry {recDict['key']} doesn't seem to be a section")
+            return parentSection.createNewSection(recDict["levelsBelow"], comment, contents)
+        self.__addEntry(sectionName, comment)
+        if sectionName not in self.__dataDict:
+            if not contents:
+                contents = CFG()
+            self.__dataDict[sectionName] = contents
+        else:
+            raise KeyError(f"{sectionName} key already exists")
+        return contents
+
 
     @gCFGSynchro
     def setOption(self, optionName: str, value: str, comment: str = "") -> DErrorReturnType | None:
@@ -985,8 +1019,10 @@ class CFG:
                 fileData = fd.read()
         return self.loadFromBuffer(fileData)
 
+
+
     @gCFGSynchro
-    def loadFromBuffer(self, data: str) -> CFG:
+    def loadFromBuffer_fast(self, data: str) -> CFG:
         """
         Load the contents of the CFG from a string
 
@@ -994,6 +1030,64 @@ class CFG:
         :param data: Contents of the CFG
         :return: This CFG
 
+        :raise SyntaxError: in case the number of opening and closing brackets do not match
+        """
+        print("CHRIS FAST")
+        commentRE = re.compile(r"^\s*#")
+        self.reset()
+        levelList = []
+        currentLevel = self
+        currentCommentLines = []
+        for lineNb, line in enumerate(data.split("\n"), start=1):
+            line = line.strip()
+            if not line:
+                continue
+
+            if "#" in line and commentRE.match(line):
+                currentCommentLines.append(f"{line.replace('#', '')}")
+                continue
+            if "+=" in line:
+                valueList = line.split("+=")
+                currentLevel.appendToOption(valueList[0].strip(), f", {'+='.join(valueList[1:]).strip()}")
+                currentCommentLines = []
+            elif "=" in line:
+                optionName, optionValue = line.split("=", maxsplit=1)
+                currentLevel.setOption(optionName.strip(), optionValue.strip(), "\n".join(currentCommentLines))
+                currentCommentLines = []
+                continue
+            elif "{" in line:
+                sectionName, shouldNotBeHere = line.split("{",maxsplit=1)
+                if shouldNotBeHere:
+                    raise ValueError("There's something after {")
+                if not sectionName:
+                    sectionName = previousLine
+                sectionName = sectionName.strip()
+
+                currentLevel.createNewSection(sectionName, "\n".join(currentCommentLines))
+                levelList.append(currentLevel)
+                currentLevel = cast(CFG, currentLevel[sectionName])
+                currentCommentLines = []
+            elif "}" in line:
+                try:
+                    currentLevel = levelList.pop()
+                except IndexError:
+                    raise ValueError(
+                        f"The cfg file seems to close more sections than it opens (Line {lineNb})"
+                    ) from None
+
+            else:
+                previousLine  = line
+        if levelList:
+            raise ValueError(f"The cfg file seems to open more sections than it closes (Line {lineNb})")
+        return self
+
+    @gCFGSynchro
+    def loadFromBuffer_old(self, data: str) -> CFG:
+        """
+        Load the contents of the CFG from a string
+        :type data: string
+        :param data: Contents of the CFG
+        :return: This CFG
         :raise SyntaxError: in case the number of opening and closing brackets do not match
         """
         commentRE = re.compile(r"^\s*#")
@@ -1043,6 +1137,7 @@ class CFG:
             raise ValueError("The cfg file seems to open more sections than it closes (i.e. to many '{' vs '}'")
         return self
 
+
     @gCFGSynchro
     def loadFromDict(self, data: CFGAsDict) -> CFG:
         for k in data:
@@ -1072,3 +1167,10 @@ class CFG:
             return True
         except Exception:
             return False
+
+    if os.environ.get("DIRAC_FAST_CS"):
+        loadFromBuffer = loadFromBuffer_fast
+        createNewSection = createNewSection_fast
+    else:
+        loadFromBuffer = loadFromBuffer_old
+        createNewSection = createNewSection_old
