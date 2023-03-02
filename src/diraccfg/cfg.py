@@ -828,7 +828,6 @@ class CFG:
 
         :return: CFG copy
         """
-        breakpoint()
         clonedCFG = CFG()
         clonedCFG.__orderedList = copy.deepcopy(self.__orderedList)
         clonedCFG.__commentDict = copy.deepcopy(self.__commentDict)
@@ -836,12 +835,13 @@ class CFG:
         #     value = self[option]
         #     assert value is not False
         #     clonedCFG.__dataDict[option] = value
-        for sKey, sValue in self.__orderedList.items():
+        for sKey in self.__orderedList:
+            sValue = self[sKey]
             if isinstance(sValue, str):
                 clonedCFG.__dataDict[sKey] = sValue
             else:
 
-                clonedCFG.__dataDict[sKey] = cast(CFG, self[section]).clone()
+                clonedCFG.__dataDict[sKey] = cast(CFG, self[sKey]).clone()
 
 
         return clonedCFG
